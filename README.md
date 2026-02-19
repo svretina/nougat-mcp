@@ -1,30 +1,24 @@
-# 🍫 Nougat-MCP
+# Nougat-MCP
 
 [![PyPI version](https://img.shields.io/pypi/v/nougat-mcp.svg)](https://pypi.org/project/nougat-mcp/)
 [![Python versions](https://img.shields.io/pypi/pyversions/nougat-mcp.svg)](https://pypi.org/project/nougat-mcp/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![MCP Protocol](https://img.shields.io/badge/MCP-Standard-blue.svg)](https://modelcontextprotocol.io)
 
-A **Model Context Protocol (MCP)** server that brings Meta's [Nougat](https://facebookresearch.github.io/nougat/) (Neural Optical Understanding for Academic Documents) to your AI agent ecosystem.
+`nougat-mcp` is a Model Context Protocol (MCP) server for high-fidelity OCR of scientific PDFs using Meta's Nougat.
 
-This server enables LLMs (like Claude, Codex, or Gemini) to **read, parse, and understand** complex scientific papers with high fidelity, preserving mathematical formulas, tables, and document structures.
+It is designed for agent workflows where you need equations, tables, and structure preserved better than traditional OCR.
 
----
+## Why This Server
 
-## 🚀 Key Features
+- Scientific OCR quality tailored for papers, formulas, and dense layouts.
+- MCP-native interface for Codex, Claude, Cursor, Antigravity, and other clients.
+- Output-format control:
+  - `mmd`: raw Nougat/Mathpix-style output.
+  - `md`: renderer-friendly conversion (math delimiter and KaTeX compatibility fixes).
+- Settings file support so agents can read a shared default format policy.
 
-- **Scientific Precision**: Specifically trained by Meta to handle academic layouts that traditional OCR (like Tesseract) fails on.
-- **LaTeX Math Support**: Converts complex equations into standard LaTeX/Markdown math delimiters.
-- **Table Preservation**: Reconstructs data tables into readable Markdown format.
-- **Process Isolation**: Securely executes Nougat in an isolated subprocess to manage memory-heavy Torch dependencies.
-- **Async Compatible**: Built on `FastMCP` for high-performance interaction with modern AI clients.
-
-## 🛠 Prerequisites
-
-- **Python**: 3.10-3.13
-- **Torch**: Required for model inference (installed automatically through dependencies).
-
-## 📦 Installation
+## Installation
 
 Install from PyPI:
 
@@ -32,68 +26,43 @@ Install from PyPI:
 uv pip install nougat-mcp
 ```
 
-`nougat-mcp` installs `nougat-ocr` and compatible dependency versions automatically.
+This package installs `nougat-ocr` and pins known-sensitive dependencies for stability.
 
-## ✅ Compatibility
+## Tools
 
-To keep the server working out-of-the-box, this package constrains known-sensitive Nougat dependencies:
+### `parse_research_paper`
 
-- `transformers` (<4.38)
-- `albumentations` (<1.4)
-- `pypdfium2` (<5)
+Arguments:
 
-## ⚙️ Configuration
+- `file_path` (string): Absolute path to a local PDF.
+- `output_format` (string, optional):
+  - `default` (default): uses server settings.
+  - `mmd`: raw Nougat output.
+  - `md`: converted markdown-friendly output.
 
-### Antigravity / Gemini Desktop
+Returns:
 
-Add to your `~/.gemini/settings.json`:
+- OCR result as a single text string in the requested format.
 
-```json
-"mcpServers": {
-  "nougat": {
-    "type": "stdio",
-    "command": "uv",
-    "args": [
-      "--directory",
-      "/path/to/nougat-mcp",
-      "run",
-      "nougat-mcp"
-    ]
-  }
-}
-```
+### `get_output_settings`
 
-You can pass a custom server settings file path using env:
+Returns resolved server output settings, including where settings were loaded from.
 
-```json
-"mcpServers": {
-  "nougat": {
-    "type": "stdio",
-    "command": "nougat-mcp",
-    "env": {
-      "NOUGAT_MCP_SETTINGS": "/absolute/path/to/settings.json"
-    }
-  }
-}
-```
+## Output Conversion (`mmd` -> `md`)
 
-### Claude Desktop
+When `output_format="md"`, the server applies compatibility conversions:
 
-Add to your `claude_desktop_config.json`:
+- `\[ ... \]` -> `$$ ... $$`
+- `\( ... \)` -> `$ ... $`
+- `\tag{...}` -> visible equation label `\qquad\text{(...)}`
+- KaTeX delimiter normalization, for example:
+  - `\bigl{\|} ... \bigr{\|}` -> `\bigl\| ... \bigr\|`
 
-```json
-{
-  "mcpServers": {
-    "nougat": {
-      "command": "nougat-mcp"
-    }
-  }
-}
-```
+This avoids common renderer parse errors in markdown environments that are not fully MathJax-compatible.
 
-## ⚙️ Server Settings
+## Server Settings
 
-The server reads settings from:
+Settings are read in this order:
 
 1. `NOUGAT_MCP_SETTINGS` (if set)
 2. `./settings.json` (current working directory)
@@ -110,34 +79,88 @@ Example `settings.json`:
 }
 ```
 
-## 🛠 Tools Provided
+## Agent Configuration
 
-### `get_output_settings`
+### Codex CLI
 
-Returns resolved output settings so agents can read formatting preferences.
+Add to `~/.codex/config.toml`:
 
-### `parse_research_paper`
+```toml
+[mcp_servers.nougat]
+command = "uvx"
+args = ["nougat-mcp"]
+enabled = true
 
-**Arguments:**
+[mcp_servers.nougat.env]
+NOUGAT_MCP_SETTINGS = "/absolute/path/to/settings.json"
+```
 
-- `file_path` (string): Absolute path to the local PDF file.
-- `output_format` (string, optional): `"default"` (default, reads settings), `"mmd"` for raw Nougat output, or `"md"` for Markdown-oriented math delimiters.
+### Claude Desktop
 
-**Output:**
-Clean document text in the selected format:
+Add to `claude_desktop_config.json`:
 
-- `"mmd"`: Nougat/Mathpix-style Markdown output.
-- `"md"`: Converted Markdown with math delimiters rewritten to `$...$` and `$$...$$`, `\tag{...}` rewritten to visible equation labels, and KaTeX-incompatible sized delimiters normalized (for example `\bigl{\|}` -> `\bigl\|`).
+```json
+{
+  "mcpServers": {
+    "nougat": {
+      "command": "uvx",
+      "args": ["nougat-mcp"],
+      "env": {
+        "NOUGAT_MCP_SETTINGS": "/absolute/path/to/settings.json"
+      }
+    }
+  }
+}
+```
 
-## 🎯 Showcase (Page 5 Example)
+### Antigravity / Gemini Desktop
 
-To make the output format differences concrete, this repository includes a real extraction from page 5 of `src/2405.08770v1.pdf`:
+Add to `~/.gemini/settings.json`:
 
-- **Input page PDF**: `showcase/2405.08770v1_page5.pdf`
-- **Raw Nougat output (`mmd`)**: `showcase/2405.08770v1_page5.mmd`
-- **Converted Markdown output (`md`)**: `showcase/2405.08770v1_page5.md`
+```json
+{
+  "mcpServers": {
+    "nougat": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["nougat-mcp"],
+      "env": {
+        "NOUGAT_MCP_SETTINGS": "/absolute/path/to/settings.json"
+      }
+    }
+  }
+}
+```
 
-Quick conversion comparison:
+### Cursor
+
+In Cursor MCP settings, add:
+
+```json
+{
+  "mcpServers": {
+    "nougat": {
+      "command": "uvx",
+      "args": ["nougat-mcp"],
+      "env": {
+        "NOUGAT_MCP_SETTINGS": "/absolute/path/to/settings.json"
+      }
+    }
+  }
+}
+```
+
+Note: Cursor MCP config location can vary by version/platform; use the MCP settings UI or your current JSON settings file.
+
+## Showcase (Real Page Example)
+
+A real extraction from page 5 of `src/2405.08770v1.pdf` is included:
+
+- Input PDF page: [showcase/2405.08770v1_page5.pdf](https://github.com/svretina/nougat-mcp/blob/master/showcase/2405.08770v1_page5.pdf)
+- Raw `mmd` output: [showcase/2405.08770v1_page5.mmd](https://github.com/svretina/nougat-mcp/blob/master/showcase/2405.08770v1_page5.mmd)
+- Converted `md` output: [showcase/2405.08770v1_page5.md](https://github.com/svretina/nougat-mcp/blob/master/showcase/2405.08770v1_page5.md)
+
+Quick comparison:
 
 ```text
 # mmd
@@ -149,12 +172,54 @@ DV=V_{x}. \qquad\text{(3.2)}
 $$
 ```
 
-## 🔗 Credits & Pointers
+## Performance Notes
 
-- **Original Project**: [Meta's Nougat-OCR](https://github.com/facebookresearch/nougat)
-- **Paper**: [Nougat: Neural Optical Understanding for Academic Documents](https://arxiv.org/abs/2308.13418)
-- **Model Weights**: Provided by Meta AI. *Note: Weights are automatically downloaded (~1.4GB) on first execution.*
+- First run may download model weights (~1.4 GB).
+- CPU inference is significantly slower than GPU inference.
+- Use page subsets whenever possible to reduce runtime.
 
-## 📄 License
+## Release to PyPI
 
-Distributed under the **GNU General Public License v3.0**. See `LICENSE` for more information.
+This repository includes automated publishing via GitHub Actions: `.github/workflows/publish-pypi.yml`.
+
+### One-time setup (recommended)
+
+1. Create the `nougat-mcp` project on PyPI.
+2. In PyPI project settings, configure a Trusted Publisher:
+   - Owner: `svretina`
+   - Repository: `nougat-mcp`
+   - Workflow: `publish-pypi.yml`
+   - Environment: `pypi`
+3. In GitHub, ensure Actions are enabled for the repo.
+
+### Release flow
+
+1. Bump `version` in `pyproject.toml`.
+2. Commit and push to `master`.
+3. Create and push a version tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+4. The workflow builds, validates (`twine check`), and publishes to PyPI.
+
+## Compatibility Pins
+
+To keep Nougat stable across environments, the package pins sensitive dependency ranges:
+
+- `transformers>=4.35,<4.38`
+- `albumentations>=1.3,<1.4`
+- `pypdfium2<5.0`
+- `huggingface-hub<1.0`
+- `fsspec<=2025.10.0`
+
+## Credits
+
+- Nougat OCR: https://github.com/facebookresearch/nougat
+- Paper: https://arxiv.org/abs/2308.13418
+
+## License
+
+GNU General Public License v3.0 (`LICENSE`).
