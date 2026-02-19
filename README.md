@@ -178,33 +178,6 @@ $$
 - CPU inference is significantly slower than GPU inference.
 - Use page subsets whenever possible to reduce runtime.
 
-## Release to PyPI
-
-This repository includes automated publishing via GitHub Actions: `.github/workflows/publish-pypi.yml`.
-
-### One-time setup (recommended)
-
-1. Create the `nougat-mcp` project on PyPI.
-2. In PyPI project settings, configure a Trusted Publisher:
-   - Owner: `svretina`
-   - Repository: `nougat-mcp`
-   - Workflow: `publish-pypi.yml`
-   - Environment: `pypi`
-3. In GitHub, ensure Actions are enabled for the repo.
-
-### Release flow
-
-1. Bump `version` in `pyproject.toml`.
-2. Commit and push to `master`.
-3. Create and push a version tag:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-4. The workflow builds, validates (`twine check`), and publishes to PyPI.
-
 ## Compatibility Pins
 
 To keep Nougat stable across environments, the package pins sensitive dependency ranges:
@@ -217,8 +190,8 @@ To keep Nougat stable across environments, the package pins sensitive dependency
 
 ## Credits
 
-- Nougat OCR: https://github.com/facebookresearch/nougat
-- Paper: https://arxiv.org/abs/2308.13418
+- Nougat OCR: <https://github.com/facebookresearch/nougat>
+- Paper: <https://arxiv.org/abs/2308.13418>
 
 ## License
 

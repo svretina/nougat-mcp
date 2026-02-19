@@ -41,3 +41,6 @@ models/
 # MCP
 .antigravity/
 design.md
+
+# Temporary files
+tmp/
