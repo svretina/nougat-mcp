@@ -1,0 +1,7 @@
+WARNING:root:No GPU found. Conversion on CPU is very slow.
+/home/svretina/Codes/nougat-mcp/.venv/lib64/python3.13/site-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+  0%|          | 0/2 [00:00<?, ?it/s]/home/svretina/Codes/nougat-mcp/.venv/lib64/python3.13/site-packages/nougat/model.py:441: UserWarning: var(): degrees of freedom is <= 0. Correction should be strictly less than the reduction factor (input numel divided by output numel). (Triggered internally at /pytorch/aten/src/ATen/native/ReduceOps.cpp:1857.)
+  return torch.var(self.values, 1) / self.values.shape[1]
+INFO:root:Processing file src/2405.08770v1.pdf with 2 pages
+ 50%|█████     | 1/2 [00:28<00:28, 28.55s/it]

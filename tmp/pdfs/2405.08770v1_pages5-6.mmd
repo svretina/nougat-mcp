@@ -1,0 +1,59 @@
+which, in turn, is equivalent to (3) in Definition 2.1. It remains to show that (1) in Definition 2.1 is equivalent to (a) above. To this end, we note that (1) in Definition 2.1 is equivalent to
+
+\[DV=V_{x}. \tag{3.2}\]
+
+Substituting \(D=P^{-1}Q\) and multiplying both sides of (3.2) by \(P\) from the left, demonstrates that (1) in Definition 2.1 is equivalent to
+
+\[QV=PV_{x}. \tag{3.3}\]
+
+We next split \(Q\) into its symmetric and anti-symmetric part, rewriting it as \(Q=(Q+Q^{T})/2+(Q-Q^{T})/2\), where the symmetric and anti-symmetric part is given by \((Q+Q^{T})/2=B/2\) and \((Q-Q^{T})/2=S\), respectively. Substituting the resulting representation \(Q=B/2+S\) into (3.3) yields that (1) in Definition 2.1 is equivalent to
+
+\[BV/2+SV=PV_{x}. \tag{3.4}\]
+
+Finally, (3.4) can be reformulated as
+
+\[\underbrace{\begin{bmatrix}S&P\end{bmatrix}}_{=X}\underbrace{\begin{bmatrix}V \\ -V_{x}\end{bmatrix}}_{=W}=-BV/2, \tag{3.5}\]
+
+which shows that (1) in Definition 2.1 is equivalent to (a) above. 
+
+Building upon Lemma 3.1, we can now identify FSBP operators as solutions to specific optimization problems. To this end, recall that an \(\mathcal{F}\)-exact diagonal-norm FSBP operator can be written as \(D=P^{-1}(S+B/2)\), where \(P\) is a diagonal positive definite matrix and \(S\) is anti-symmetric. Furthermore, observe that (a) in Lemma 3.1 is equivalent to \(\|XW+BV/2\|_{2}^{2}=0\). Hence, if \(D=P^{-1}(S+B/2)\) is an \(\mathcal{F}\)-exact diagonal-norm FSBP operator then \(X=[S,P]\) is the global minimizer of the constrained quadratic minimization problem
+
+\[\min_{X\in\mathcal{X}}\bigl{\|}XW+BV/2\bigr{\|}_{2}^{2}\,. \tag{3.6}\]
+
+Here, the set of admissible solutions, or constraints, are
+
+\[\mathcal{X}=\left\{\,X=[S,P]\mid S^{T}=-S,P=\text{diag}(p_{1},\ldots,p_{N}),\ p_{i}>0,\sum_{n=1}^{N}p_{n}=x_{R}-x_{L}\,\right\}, \tag{3.7}\]
+
+ensuring that \(S\) is anti-symmetric, \(P\) is diagonal positive definite, and \(P\) is exact for constants. The first two constraints correspond to (b) and (c) in Lemma 3.1, while the last one ensures that Requirement 2.3 holds. Conversely, if \(X=[S,P]\) is a solution of (3.6) with \(\bigl{\|}XW+BV/2\bigr{\|}_{2}^{2}=0\), then \(D=P^{-1}(S+B/2)\) is an \(\mathcal{F}\)-exact diagonal-norm FSBP operator. We summarize this characterization of FSBP operators as solutions of the constrained quadratic optimization problem (3.6) below in Lemma 3.2.
+
+**Lemma 3.2**.: _Let \(\mathcal{F}\subset C^{1}([x_{L},x_{R}])\). The operator \(D=P^{-1}(S+B/2)\in\mathbb{R}^{N\times N}\) is an \(\mathcal{F}\)-exact diagonal-norm FSBP operator (see Definition 2.1) if and only if \(X=[S,P]\in\mathbb{R}^{N\times 2N}\) solves the constraint quadratic minimization problem (3.6) that satisfies \(\bigl{\|}XW+BV/2\bigr{\|}_{2}^{2}=0\)._
+
+### Removing the constraints
+
+The efficiency of the optimization process is increased by eliminating the inequality constraints. Including these constraints requires using approaches such as active sets or projection methods. Such methods are either limited to first-order convergence, resulting in impractically many iterations to achieve near-machine precision, or an significant increase in complexity for large-scale optimization problems.
+
+We therefore reformulate the optimization problem (12) subject to \(\mathcal{X}\) via a parametrization \((\boldsymbol{\sigma},\boldsymbol{\rho})\mapsto X(\boldsymbol{\sigma}, \boldsymbol{\rho})\) with \(X(\boldsymbol{\sigma},\boldsymbol{\rho})=[S(\boldsymbol{\sigma}),P( \boldsymbol{\rho})]\) that maps an unconstrained vector space to the set \(\mathcal{X}\). In particular, \(S(\boldsymbol{\sigma})\) parameterizes the set of all anti-symmetric \(N\times N\) matrices. At the same time, \(P(\boldsymbol{\rho})\) parameterizes the set of all diagonal norm operators on \([x_{L},x_{R}]\) that are exact for constants, i.e., all diagonal \(N\times N\) matrices with positive diagonal entries that sum up to \(x_{R}-x_{L}\). In our numerical tests, we used the parameterization
+
+\[S(\boldsymbol{\sigma})=\begin{pmatrix}0&\sigma_{1}&\sigma_{2}&\sigma_{3}& \ldots\\ -\sigma_{1}&0&\sigma_{4}&\sigma_{5}&\ldots\\ -\sigma_{2}&-\sigma_{4}&0&\sigma_{6}&\ldots\\ -\sigma_{3}&-\sigma_{5}&-\sigma_{6}&0&\ldots\\ \vdots&\vdots&\vdots&\vdots&\ddots\end{pmatrix} \tag{13}\]
+
+for the set of all anti-symmetric \(N\times N\) matrices, where \(\boldsymbol{\sigma}=[\sigma_{1},\ldots,\sigma_{L}]\) with \(L=N(N-1)/2\). Furthermore, we parameterized the set of diagonal norm operators on \([x_{L},x_{R}]\) that are exact for constants as
+
+\[P(\boldsymbol{\rho})=\left(\frac{x_{R}-x_{L}}{\sum_{n=1}^{N}\mathrm{sig}(\rho _{n})}\right)\mathrm{diag}\left(\mathrm{sig}(\rho_{1}),\ldots,\mathrm{sig}( \rho_{N})\right), \tag{14}\]
+
+where \(\boldsymbol{\rho}=[\rho_{1},\ldots,\rho_{N}]\) and \(\mathrm{sig}:\mathbb{R}\to(0,1)\) is a sigmoid function, having a characteristic "S"-shaped curve, cf. Figure 1, and only taking on values between \(0\) and \(1\). Using any sigmoid function ensures the positivity of the resulting norm operator. Moreover, the factor "\((x_{R}-x_{L})/(\sum_{n=1}^{N}\mathrm{sig}(\rho_{n}))\)" ensures that the diagonal elements of \(P\) sum up to \(x_{R}-x_{L}\), ensuring its exactness for constants. While any sigmoid function ensures that \(P\) is a norm matrix that is exact for constants, we found the logistic function
+
+\[\mathrm{sig}(\rho)=\frac{1}{1+\mathrm{e}^{-\rho}}\]
+
+to perform well in our numerical tests (blue dotted line in Figure 1).
+
+Finally, we reformulate our constrained optimization problem (12) as the following unconstrained optimization problem
+
+\[\min_{\sigma\in\mathbb{R}^{N},\rho\in\mathbb{R}^{L}}\left\|X(\sigma,\rho)W+BV/2 \right\|^{2}. \tag{15}\]
+
+**Remark 1**: If we only required \(P\) to be a norm operator--not necessarily exact for constants. We would have parameterized it as \(P(\boldsymbol{\rho})=\mathrm{diag}\left(\mathrm{sig}(\rho_{1}),\ldots,\mathrm{ sig}(\rho_{N})\right)\), dropping the normalizing factor.
+
+### Conditioning
+
+For a stable solution to (15), it is essential with a well-conditioned matrix \(W\). The condition number of \(W\) is determined by the ratio of its largest singular value to the smallest one. These singular values, in turn, correspond to the square roots of the largest and smallest eigenvalues of the matrix \(W^{T}W\), respectively. Note that
+
+\[W^{T}W=[V^{T}\ -V_{x}^{T}]\begin{bmatrix}V\\ -V_{x}\end{bmatrix}=V^{T}V+V_{x}^{T}V_{x} \tag{16}\]
