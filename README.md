@@ -1,7 +1,7 @@
 # Nougat-MCP
 
-[![PyPI version](https://img.shields.io/pypi/v/nougat-mcp.svg)](https://pypi.org/project/nougat-mcp/)
-[![Python versions](https://img.shields.io/pypi/pyversions/nougat-mcp.svg)](https://pypi.org/project/nougat-mcp/)
+[![PyPI version](https://img.shields.io/pypi/v/nougat_mcp.svg)](https://pypi.org/project/nougat-mcp/)
+[![Python versions](https://img.shields.io/pypi/pyversions/nougat_mcp.svg)](https://pypi.org/project/nougat-mcp/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![MCP Protocol](https://img.shields.io/badge/MCP-Standard-blue.svg)](https://modelcontextprotocol.io)
 
